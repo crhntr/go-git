@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5/storage/filesystem/dotgit"
+	"github.com/go-git/go-git/v5/storage/filesystem/newfs"
 
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/internal/revision"
@@ -30,7 +31,6 @@ import (
 	"golang.org/x/crypto/openpgp"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/go-git/go-billy/v5/osfs"
 )
 
 // GitDirName this is a special folder where all the git stuff is.
@@ -223,9 +223,9 @@ func PlainInit(path string, isBare bool) (*Repository, error) {
 	var wt, dot billy.Filesystem
 
 	if isBare {
-		dot = osfs.New(path)
+		dot = newfs.New(path)
 	} else {
-		wt = osfs.New(path)
+		wt = newfs.New(path)
 		dot, _ = wt.Chroot(GitDirName)
 	}
 
@@ -289,7 +289,7 @@ func dotGitToOSFilesystems(path string, detect bool) (dot, wt billy.Filesystem, 
 	var fs billy.Filesystem
 	var fi os.FileInfo
 	for {
-		fs = osfs.New(path)
+		fs = newfs.New(path)
 		fi, err = fs.Stat(GitDirName)
 		if err == nil {
 			// no error; stop
@@ -346,10 +346,10 @@ func dotGitFileToOSFilesystem(path string, fs billy.Filesystem) (bfs billy.Files
 	gitdir := strings.Split(line[len(prefix):], "\n")[0]
 	gitdir = strings.TrimSpace(gitdir)
 	if filepath.IsAbs(gitdir) {
-		return osfs.New(gitdir), nil
+		return newfs.New(gitdir), nil
 	}
 
-	return osfs.New(fs.Join(path, gitdir)), nil
+	return newfs.New(fs.Join(path, gitdir)), nil
 }
 
 func dotGitCommonDirectory(fs billy.Filesystem) (commonDir billy.Filesystem, err error) {
@@ -368,9 +368,9 @@ func dotGitCommonDirectory(fs billy.Filesystem) (commonDir billy.Filesystem, err
 	if len(b) > 0 {
 		path := strings.TrimSpace(string(b))
 		if filepath.IsAbs(path) {
-			commonDir = osfs.New(path)
+			commonDir = newfs.New(path)
 		} else {
-			commonDir = osfs.New(filepath.Join(fs.Root(), path))
+			commonDir = newfs.New(filepath.Join(fs.Root(), path))
 		}
 		if _, err := commonDir.Stat(""); err != nil {
 			if os.IsNotExist(err) {

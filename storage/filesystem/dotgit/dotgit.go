@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/storage"
+	"github.com/go-git/go-git/v5/storage/filesystem/newfs"
 	"github.com/go-git/go-git/v5/utils/ioutil"
 
 	"github.com/go-git/go-billy/v5"
@@ -1131,7 +1131,7 @@ func (d *DotGit) Alternates() ([]*DotGit, error) {
 			normalPath := filepath.FromSlash(relpath)
 			path = filepath.Join(d.fs.Root(), normalPath)
 		}
-		fs := osfs.New(filepath.Dir(path))
+		fs := newfs.New(filepath.Dir(path))
 		alternates = append(alternates, New(fs))
 	}
 
